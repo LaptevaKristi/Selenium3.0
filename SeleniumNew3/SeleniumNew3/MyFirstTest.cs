@@ -17,10 +17,18 @@ namespace SeleniumNew3
 
         private WebDriverWait wait;
 
+        #region ConstVariables
+
+        private const string AdminLiteCartUrl = "http://localhost:8084/litecart/admin";
+        private const string AdminName = "admin";
+        private const string AdminPassword = "admin";
+
+        #endregion
         [SetUp]
         public void Start()
         {
             this.driver = new ChromeDriver();
+            this.driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(20);
             this.wait =new WebDriverWait(this.driver, TimeSpan.FromSeconds(10));
         }
 
@@ -32,6 +40,19 @@ namespace SeleniumNew3
             this.driver.FindElement(By.Name("btnK")).Click();
             this.wait.Until(ExpectedConditions.TitleIs("webdriver - Поиск в Google"));
         }
+
+        [Test]
+        public void LoginInAdminPanel()
+        {
+            this.driver.Url = AdminLiteCartUrl;
+            this.driver.FindElement(By.Name("username")).Clear();
+            this.driver.FindElement(By.Name("password")).Clear();
+            this.driver.FindElement(By.Name("username")).SendKeys(AdminName);
+            this.driver.FindElement(By.Name("password")).SendKeys(AdminPassword);
+
+            this.driver.FindElement(By.Name("login")).Click();
+        }
+
 
         [TearDown]
         public void Stop()
