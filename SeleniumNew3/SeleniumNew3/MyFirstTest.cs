@@ -13,6 +13,8 @@ namespace SeleniumNew3
     using OpenQA.Selenium.Remote;
     using OpenQA.Selenium.Support.UI;
 
+    using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
+
     [TestClass]
     public class MyFirstTest
     {
@@ -23,6 +25,7 @@ namespace SeleniumNew3
         #region ConstVariables
 
         private const string AdminLiteCartUrl = "http://localhost:8084/litecart/admin";
+        private const string LiteCartUrl = "http://localhost:8084/litecart";
         private const string AdminName = "admin";
         private const string AdminPassword = "admin";
 
@@ -79,6 +82,20 @@ namespace SeleniumNew3
                 }
             }
             
+        }
+
+        [Test]
+        public void Zad8_ValidateStiker()
+        {
+            this.driver.Url = LiteCartUrl;
+            var productItems = this.driver.FindElements(By.XPath(".//li[@class='product column shadow hover-light']"));
+
+            foreach (var product in productItems)
+            {
+                var nameProduct = product.FindElement(By.XPath(".//div[@class='name']")).Text;
+                var sticker = product.FindElements(By.XPath(".//div[contains(@class, 'sticker')]"));
+                Assert.AreEqual(1, sticker.Count, $"Sticker for product {nameProduct} != 1");
+            }
         }
 
         [TearDown]
