@@ -103,8 +103,6 @@ namespace SeleniumNew3
         [Test]
         public void Zad9_ValidateSortCountryAndGeoZoneInAdmin()
         {
-
-            //Zadanie 9_1
             this.LoginInAdminPanel();
 
             this.driver.Navigate().GoToUrl($"{AdminLiteCartUrl}/?app=countries&doc=countries");
@@ -114,53 +112,39 @@ namespace SeleniumNew3
 
             var sortedCountryListName = countryListName.ToList();
             sortedCountryListName.Sort();
-            Assert.AreEqual(sortedCountryListName, countryListName);
-            
+
+            for (var i = 0; i < countryListName.Count; i++)
+            {
+                Assert.AreEqual(sortedCountryListName[i], countryListName[i]);
+            }
+
             var zones = this.driver.FindElements(By.XPath(".//table[@class='dataTable']//tr[@class='row']/td[last()-1]"));
 
-            var dictionaryCountry = new Dictionary<string, string>();
-            for (var i = 0; i < countryListName.Count; i++)
+            var dictionaryCountry = new Dictionary<IWebElement, string>();
+            for (var i = 0; i < countryList.Count; i++)
             {
                 if (Convert.ToInt32(zones[i].Text) != 0)
                 {
-                    dictionaryCountry.Add(countryListName[i], zones[i].Text);
+                    dictionaryCountry.Add(countryList[i], zones[i].Text);
                 }
             }
 
             foreach (var country in dictionaryCountry)
             {
-                this.driver.FindElement(By.XPath($".//table[@class='dataTable']//a[text()='{country.Key}']")).Click();
+                country.Key.Click();
                 var zonesCountry = this.driver.FindElements(By.XPath(".//table[@id='table-zones']//input[contains(@name, 'name')]/.."));
                 var zonesCountrywithoutEmpty = zonesCountry.Where(z => !string.IsNullOrEmpty(z.Text)).ToList();
                 var zonesCountryText = zonesCountrywithoutEmpty.Select(z => z.Text).ToList();
                 var sortedZonesListName = zonesCountryText.ToList();
                 sortedZonesListName.Sort();
-                Assert.AreEqual(sortedZonesListName, zonesCountryText);
-                
+
+                for (var i = 0; i < zonesCountrywithoutEmpty.Count; i++)
+                {
+                    Assert.AreEqual(sortedZonesListName[i], zonesCountryText[i]);
+                }
+
                 this.driver.FindElement(By.XPath(".//button[@name='cancel']")).Click();
                 this.wait.Until(ExpectedConditions.ElementExists(By.XPath(".//h1[contains(text(), 'Countries')]")));
-            }
-
-            //Zadanie 9_2
-            this.driver.Navigate().GoToUrl($"{AdminLiteCartUrl}/?app=geo_zones&doc=geo_zones");
-
-            var geoZoneList =
-                this.driver.FindElements(By.XPath(".//table[@class='dataTable']//tr[@class='row']/td[last()-2]"));
-            var geoZoneNames = geoZoneList.Select(g => g.Text).ToList();
-
-            foreach (var name in geoZoneNames)
-            {
-               this.driver.FindElement(By.XPath($".//a[text()='{name}']")).Click();
-                var zonesList = driver.FindElements(
-                    By.XPath($".//select[contains(@name, 'zone_code')]/option[@selected='selected']"));
-
-                var zonesName = zonesList.Select(z => z.Text).ToList();
-                var sortedZonesName = zonesName.ToList();
-                sortedZonesName.Sort();
-                    Assert.AreEqual(sortedZonesName, zonesName);
-
-                this.driver.FindElement(By.XPath(".//button[@name='cancel']")).Click();
-                this.wait.Until(ExpectedConditions.ElementExists(By.XPath(".//h1[contains(text(), 'Geo Zones')]")));
             }
         }
 
