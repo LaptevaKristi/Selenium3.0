@@ -224,7 +224,9 @@ namespace SeleniumNew3
                     driver.Navigate().GoToUrl(productOnMain.URL);
                     var nameDuck = driver.FindElement(By.XPath(".//h1"));
                     var manufacturerDuck = driver.FindElement(By.XPath(".//div[@class='manufacturer']//img"));
-                    var priceDuck = driver.FindElements(By.XPath(".//div[@class='information']//span[contains(@class,'price')]")).Count == 0 ?
+                    var priceCount = driver.FindElements(
+                        By.XPath(".//div[@class='information']//span[contains(@class,'price')]")).Count;
+                    var priceDuck =  priceCount== 0 ?
                                      driver.FindElement(By.XPath(".//div[@class='information']//s[contains(@class,'price')]")) :
                                      driver.FindElement(By.XPath(".//div[@class='information']//span[contains(@class,'price')]"));
                     var salepriceDuck = driver.FindElements(By.XPath(".//div[@class='information']//strong[contains(@class,'price')]")).Count == 0 ?
@@ -235,21 +237,21 @@ namespace SeleniumNew3
                     Assert.IsTrue(manufacturerDuck.GetAttribute("Title") == productOnMain.Manufacturer, "Wrong manufacturer");
                     
                     Assert.IsTrue(Int64.Parse(priceDuck.Text.Replace("$", "")) == productOnMain.Price.Amount, "Wrong price");
-                    Assert.IsTrue(priceDuck.GetCssValue("text-decoration-line") == productOnMain.Price.Style, "Wrong price text style");
-                var color = priceDuck.GetCssValue("color").Substring(5).Replace(")", "").Split(new char[] { ',' }).ToList()
+                    
+                    var color = priceDuck.GetCssValue("color").Substring(5).Replace(")", "").Split(new char[] { ',' }).ToList()
                                                         .Select(x => Int32.Parse(x)).ToList();
                     Assert.IsTrue(color[0] == color[1] && color[1] == color[2], "Wrong price color");
                     
                     if (salepriceDuck != null && productOnMain.SalePrice != null)
                      {
+                         Assert.IsTrue(priceDuck.GetCssValue("text-decoration-line") == productOnMain.Price.Style, "Wrong price text style");
                         Assert.IsTrue(Int64.Parse(salepriceDuck.Text.Replace("$", "")) == productOnMain.SalePrice.Amount);
                         Assert.IsTrue(salepriceDuck.GetCssValue("font-weight") == productOnMain.SalePrice.Style, "Wrong price text style");
                         var salecolor = salepriceDuck.GetCssValue("color").Substring(5).Replace(")", "").Split(new char[] { ',' }).ToList()
                                                                     .Select(x => Int32.Parse(x)).ToList();
                         Assert.IsTrue(salecolor[1] == salecolor[2] && salecolor[1] == 0, "Wrong sale price color");
                         Assert.IsTrue(Int32.Parse(salepriceDuck.GetCssValue("font-size").Remove(2)) > Int32.Parse(priceDuck.GetCssValue("font-size").Remove(2)), "Wrong sale price size");
-                    //Assert.IsTrue(salepriceDuck.GetCssValue("font-weight") == productOnMain.SalePrice.Style, "Wrong regular price text style");
-                    Assert.IsTrue(Int64.Parse(priceDuck.Text.Replace("$", "")) > Int64.Parse(salepriceDuck.Text.Replace("$", "")));
+                        Assert.IsTrue(Int64.Parse(priceDuck.Text.Replace("$", "")) > Int64.Parse(salepriceDuck.Text.Replace("$", "")));
                      }
                  }
         }
