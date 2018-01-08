@@ -427,6 +427,40 @@ namespace SeleniumNew3
                 driver.FindElements(By.XPath(".//em[text()='There are no items in your cart.']")).Count > 0);
         }
 
+        [Test]
+        public void Zad14_Window()
+        {
+            this.LoginInAdminPanel();
+            driver.Navigate().GoToUrl($"{AdminLiteCartUrl}/?app=countries&doc=countries");
+            var editCountry = driver.FindElement(By.XPath(".//a[@title='Edit']"));
+            editCountry.Click();
+            string mainWindow = driver.CurrentWindowHandle;
+            var links = driver.FindElements(By.XPath(".//i[contains(@class,'fa-external')]"));
+
+            foreach (var link in links)
+            {
+                link.Click();
+
+                wait.Until(
+                    (d) =>
+                        {
+                            var windows = d.WindowHandles;
+                            foreach (var window in windows)
+                            {
+                                if (window != mainWindow)
+                                {
+                                    return d.SwitchTo().Window(window);
+                                }
+                            }
+                            return null;
+                        });
+
+                driver.Close();
+                Assert.IsTrue(driver.WindowHandles.Count == 1);
+                driver.SwitchTo().Window(mainWindow);
+            }
+        }
+
         private string GiveUniqEmail()
         {
             return DateTime.Now.Hour + DateTime.Now.Minute + DateTime.Now.Second + DateTime.Now.Millisecond + "@gmail.com";
