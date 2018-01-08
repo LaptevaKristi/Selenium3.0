@@ -383,6 +383,50 @@ namespace SeleniumNew3
             Assert.IsTrue(CreatedProduct.Count > 0);
         }
 
+        [Test]
+        public void Zad13_WorkWithCart()
+        {
+            this.driver.Url = LiteCartUrl;
+            var cartCounter = Int32.Parse(driver.FindElement(By.XPath(".//span[@class='quantity']")).GetAttribute("innerText"));
+
+            while (cartCounter < 3)
+            {
+                driver.Navigate().GoToUrl(LiteCartUrl);
+                var ProductItem =
+                    driver.FindElement(By.XPath(".//li[contains(@class,'product column')]//a[@class='link']"));
+                ProductItem.Click();
+                if (driver.FindElements(By.XPath(".//select[@name='options[Size]']")).Count > 0)//если есть поле "размер" которое обязательно для заполнения
+                {
+                    new SelectElement(driver.FindElement(By.XPath(".//select[@name='options[Size]']"))).SelectByValue("Small");
+                }
+                var add2CartButton = driver.FindElement(By.XPath(".//button[@name='add_cart_product']"));
+                var quantityBefore = driver.FindElement(By.XPath(".//span[@class='quantity']"))
+                    .GetAttribute("innerText");
+                add2CartButton.Click();
+                new WebDriverWait(driver, TimeSpan.FromSeconds(10)).Until((IWebDriver d) => d.FindElement(By.XPath(".//span[@class='quantity']")).GetAttribute("innerText") != quantityBefore);
+                Assert.IsTrue(Int32.Parse(driver.FindElement(By.XPath(".//span[@class='quantity']")).GetAttribute("innerText")) -
+                              cartCounter == 1);
+                cartCounter++;
+            }
+
+            var checkoutLink = driver.FindElement(By.XPath(".//div[@id='cart-wrapper']//a[@class='link']"));
+            checkoutLink.Click();
+
+            var checkoutListCount = driver.FindElements(By.XPath(".//table[contains(@class,'dataTable')]//td[@class='item']")).Count;
+            for (; checkoutListCount > 0; checkoutListCount--)
+            {
+                var removeButton = driver.FindElement(By.XPath(".//button[@name='remove_cart_item']"));
+                removeButton.Click();
+                new WebDriverWait(driver, TimeSpan.FromSeconds(10)).Until(
+                    d => d.FindElements(By.XPath(".//table[contains(@class,'dataTable')]//td[@class='item']")).Count < checkoutListCount);
+                Assert.IsTrue(
+                    checkoutListCount - driver.FindElements(By.XPath(".//table[contains(@class,'dataTable')]//td[@class='item']")).Count == 1);
+
+            }
+            Assert.IsTrue(
+                driver.FindElements(By.XPath(".//em[text()='There are no items in your cart.']")).Count > 0);
+        }
+
         private string GiveUniqEmail()
         {
             return DateTime.Now.Hour + DateTime.Now.Minute + DateTime.Now.Second + DateTime.Now.Millisecond + "@gmail.com";
