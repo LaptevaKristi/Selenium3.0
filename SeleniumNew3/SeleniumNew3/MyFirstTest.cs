@@ -461,6 +461,46 @@ namespace SeleniumNew3
             }
         }
 
+        [Test]
+        public void Zad17_ValidateLogBrowser()
+        {
+            //******************************
+            /*
+            чтобы проверить можно на время теста переименовать папку
+            C:\xampp\htdocs\litecart\ext\trumbowyg  -> C:\xampp\htdocs\litecart\ext\trumbowyg2
+            тогда будут валиться сообщения при входе на страницу продукта
+            */
+            //******************************
+
+            this.LoginInAdminPanel();
+            driver.Navigate().GoToUrl($"{AdminLiteCartUrl}/?app=catalog&doc=catalog&category_id=1");
+            var logmessages = new Dictionary<string, IReadOnlyCollection<LogEntry>>();
+
+            var listOfProducts = driver.FindElements(
+                By.XPath(".//table[@class='dataTable']//td/img/../a[contains(@href,'product_id')]")).Select(x => x.Text).ToList();
+
+            foreach (var product in listOfProducts)
+            {
+                driver.Navigate().GoToUrl($"{AdminLiteCartUrl}/?app=catalog&doc=catalog&category_id=1");
+                driver.FindElement(By.XPath(".//table[@class='dataTable']//td/img/../a[contains(text(),'" + product + "')]")).Click();
+                var logs = driver.Manage().Logs.GetLog("browser");
+                if (logs.Count > 0)
+                {
+                    logmessages.Add(product, logs);
+                }
+            }
+            if (logmessages.Count <= 0) return;
+
+            foreach (var log in logmessages)
+            {
+                Console.WriteLine(log.Key);
+                foreach (var logMessage in log.Value)
+                {
+                    Console.WriteLine(logMessage.Level + "\t" + logMessage.Message);
+                }
+            }
+        }
+
         private string GiveUniqEmail()
         {
             return DateTime.Now.Hour + DateTime.Now.Minute + DateTime.Now.Second + DateTime.Now.Millisecond + "@gmail.com";
