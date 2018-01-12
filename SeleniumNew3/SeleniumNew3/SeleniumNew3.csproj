@@ -66,9 +66,13 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Application.cs" />
+    <Compile Include="Cart.cs" />
+    <Compile Include="MainPage.cs" />
     <Compile Include="MyFirstTest.cs" />
     <Compile Include="Objects\Duck.cs" />
     <Compile Include="Objects\Price.cs" />
+    <Compile Include="Product.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

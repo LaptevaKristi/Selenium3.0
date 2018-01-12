@@ -37,7 +37,7 @@ namespace SeleniumNew3
         private const string AdminPassword = "admin";
 
         #endregion
-        [SetUp]
+        //[SetUp]
         public void Start()
         {
             this.driver = new ChromeDriver();
@@ -425,6 +425,24 @@ namespace SeleniumNew3
             }
             Assert.IsTrue(
                 driver.FindElements(By.XPath(".//em[text()='There are no items in your cart.']")).Count > 0);
+        }
+
+        [Test]
+        public void Zad19_Structure()
+        {
+            var app = new Application();
+            var mainPage = app.OpenMainPage();
+            var cartCount = Int32.Parse(mainPage.GetCartItemsCount());
+            while (cartCount < 3)
+            {
+                var product = mainPage.OpenProduct("random");
+                product.Add2Cart();
+                mainPage = app.OpenMainPage();
+                cartCount++;
+            }
+            var cart = mainPage.OpenCart();
+            cart.DeleteAllProducts();
+            Assert.IsTrue(cart.isCartEmpty());
         }
 
         [Test]
